@@ -34,6 +34,8 @@
             <h1 class="text-center">Lab Reservations</h1>
             <div>
                 <b-button variant="outline-primary" v-b-modal.modal-1 @click="nuevoEstudiante">Create New Reservation</b-button>
+                <button class="btn btn-secondary" @click="previousReservations">Previous Reservations</button>
+                <button class="btn btn-secondary" @click="currentReservations">Current Reservations</button>
             </div>
         </div>
     </div>
@@ -45,6 +47,7 @@
                     <th scope="col">Matrícula</th>
                     <th scope="col">Name</th>
                     <th scope="col">Email</th>
+                    <th scope="col">Laboratory</th>
                     <th scope="col">Schedule</th>
                     <th scope="col">Options</th>
                 </tr>
@@ -54,6 +57,7 @@
                     <td>{{reservation.matricula}}</td>
                     <td>{{reservation.name}}</td>
                     <td>{{reservation.email}}</td>
+                    <td>{{reservation.laboratory}}</td>
                     <td>{{reservation.schedule}}</td>
                     <td>
                         <button class="btn btn-secondary" @click="editarEstudiante(reservation)">Edit</button> |
@@ -116,9 +120,17 @@
                         v-model="nuevo.schedule"
                         type="text"
                         required
-                        placeholder="Schedule"
+                        placeholder="01-01-2001 08:00:00"
                 ></b-form-input>
             </b-form-group>
+            <br>
+
+                <div>
+                    <p>Seleccione un laboratorio:</p>
+                    <b-form-select v-model="laboratory" :options="options"></b-form-select>
+                </div>
+
+            <br>
             <b-button type="submit" variant="primary">Send</b-button>
             <b-button type="reset" variant="danger">Clear</b-button>
         </b-form>
@@ -141,9 +153,19 @@
                 matricula: '',
                 name: '',
                 email: '',
-                schedule: ''
+                schedule: '',
+                laboratory: ''
             },
-            reservations: []
+            reservations: [],
+            selected: null,
+            options: [
+                { value: 'Lab A1', text: 'Lab A1' },
+                { value: 'Lab A2', text: 'Lab A2' },
+                { value: 'Lab A3', text: 'Lab A3' },
+                { value: 'Lab A4', text: 'Lab A4' },
+                { value: 'Lab A5', text: 'Lab A5' },
+                { value: 'Lab A6', text: 'Lab A6' },
+            ]
         } ,
 
         created: function () {//representa la función de inicialización Vuejs
@@ -162,7 +184,6 @@
         methods: {
 
             listaEstudiantes: function(){
-                console.log("Cargando lista de Estudiante");
                 axios.get(URL_API).then(response => {
                     //
                     console.log("Recuperando información del servidor");
@@ -172,28 +193,95 @@
                 }).catch(error => { console.log(error); });
             },
 
+            currentReservations: function(){
+                axios.get(URL_API).then(response => {
+                    //
+                    console.log("Recuperando información del servidor");
+                    console.log("Objeto: "+JSON.stringify(response));
+                    //
+                    this.reservations = response.data.data.reservations;
+                    this.previous = null;
+                    this.reservations.forEach((item) => {
+                        var date = item.schedule;
+                        var dateReserv = new Date(date);
+                        var currentDay = new Date().getDay();
+                        var currentMonth = new Date().getMonth();
+                        var currentYear = new Date().getFullYear();
+                        var currentHour = new Date().getHours() + 1;
+
+                        //still active
+                        if (currentHour <= dateReserv.getHours() + 1 &&
+                            currentYear <= dateReserv.getFullYear() &&
+                            currentMonth <= dateReserv.getMonth() &&
+                            currentDay <= dateReserv.getDay()){
+                            this.previous.add(item);
+                        }
+
+                        this.reservations = this.previous;
+                    })
+
+                }).catch(error => { console.log(error); });
+            },
+
+            previousReservations: function(){
+                axios.get(URL_API).then(response => {
+                    //
+                    console.log("Recuperando información del servidor");
+                    console.log("Objeto: "+JSON.stringify(response));
+                    //
+                    this.reservations = response.data.data.reservations;
+                    this.current = null;
+                    this.reservations.forEach((item) => {
+                        var date = item.schedule;
+                        var dateReserv = new Date(date);
+                        var currentDay = new Date().getDay();
+                        var currentMonth = new Date().getMonth();
+                        var currentYear = new Date().getFullYear();
+                        var currentHour = new Date().getHours() + 1;
+
+                        //not active
+                        if (!(currentHour <= dateReserv.getHours() + 1 &&
+                            currentYear <= dateReserv.getFullYear() &&
+                            currentMonth <= dateReserv.getMonth() &&
+                            currentDay <= dateReserv.getDay())){
+                            this.current.add(item);
+                        }
+
+                        this.reservations = this.current;
+                    })
+
+                }).catch(error => { console.log(error); });
+            },
+
             nuevoEstudiante: function(){
-                console.log("Nuevo Estudiante");
-                this.titulo = "Nuevo Estudiante";
+                this.titulo = "New Reservation";
                 this.editando = false;
                 this.limpiar();
             },
 
             crearActualizarEstudiante: function(){
                 console.log("datos para almacenar: ", this.nuevo);
-                if(!this.editando){
-                    //creando
-                    axios.post(URL_API, this.nuevo).then(response => {
-                        this.limpiar();
-                        this.listaEstudiantes();
-                    }).catch(error => console.log(error));
-                } else{
-                    //editando
-                    axios.put(URL_API, this.nuevo).then(response => {
-                        this.limpiar();
-                        this.listaEstudiantes();
-                    }).catch(error => console.log(error));
-                }
+                this.reservations.forEach((item) => {
+                    if(item.laboratory != this.nuevo.laboratory &&
+                       item.schedule != this.nuevo.schedule){
+                        var time = new Date(this.nuevo.schedule);
+                        if (time.getHours() >= 8 && time.getHours() <= 22){
+                            if(!this.editando){
+                                //creando
+                                axios.post(URL_API, this.nuevo).then(response => {
+                                    this.limpiar();
+                                    this.listaEstudiantes();
+                                }).catch(error => console.log(error));
+                            } else{
+                                //editando
+                                axios.put(URL_API, this.nuevo).then(response => {
+                                    this.limpiar();
+                                    this.listaEstudiantes();
+                                }).catch(error => console.log(error));
+                            }
+                        }
+                    }
+                })
 
                 this.$bvModal.hide('modal-1');
             },
@@ -220,7 +308,7 @@
                 this.nuevo.schedule='';
             }
 
-            
+
 
         }
     });

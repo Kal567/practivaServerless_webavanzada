@@ -18,6 +18,8 @@ public class Reservation {
     private String email;
     @DynamoDBAttribute(attributeName = "schedule")
     private String schedule;
+    @DynamoDBAttribute(attributeName = "laboratory")
+    private String laboratory;
 
     public Reservation(){
         
@@ -28,11 +30,12 @@ public class Reservation {
         this.nombre = nombre;
     }*/
 
-    public Reservation(int matricula, String name, String correo, String schedule) {
+    public Reservation(int matricula, String name, String email, String schedule, String laboratory) {
         this.matricula = matricula;
         this.name = name;
         this.email = email;
         this.schedule = schedule;
+        this.laboratory = laboratory;
     }
 
     public int getMatricula() {
@@ -67,13 +70,22 @@ public class Reservation {
         this.schedule = schedule;
     }
 
+    public String getLaboratory() {
+        return laboratory;
+    }
+
+    public void setLaboratory(String laboratory) {
+        this.laboratory = laboratory;
+    }
+
     @Override
     public String toString() {
-        return "Estudiante{" +
+        return "Reservation{" +
                 "matricula=" + matricula +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", schedule='" + schedule + '\'' +
+                ", laboratory='" + laboratory + '\'' +
                 '}';
     }
 }

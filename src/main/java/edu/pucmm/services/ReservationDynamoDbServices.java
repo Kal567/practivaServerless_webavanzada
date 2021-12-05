@@ -62,6 +62,7 @@ public class ReservationDynamoDbServices {
                 AttributeValue nameAttribute = mapReservations.get("name");
                 AttributeValue emailAttribute = mapReservations.get("email");
                 AttributeValue scheduleAttribute = mapReservations.get("schedule");
+                AttributeValue laboratoryAttribute = mapReservations.get("laboratory");
                 //
                 Reservation tmp = new Reservation();
                 tmp.setMatricula(Integer.valueOf(matriculaAttribute.getN()));
@@ -73,6 +74,9 @@ public class ReservationDynamoDbServices {
                 }
                 if(scheduleAttribute!=null){
                     tmp.setSchedule(scheduleAttribute.getS());
+                }
+                if(laboratoryAttribute!=null){
+                    tmp.setLaboratory(laboratoryAttribute.getS());
                 }
                 //
                 reservations.add(tmp);
