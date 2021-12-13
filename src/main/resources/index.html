@@ -261,6 +261,7 @@
 
             crearActualizarEstudiante: function(){
                 console.log("datos para almacenar: ", this.nuevo);
+                this.reservations = response.data.data.reservations;
                 this.reservations.forEach((item) => {
                     if(item.laboratory != this.nuevo.laboratory &&
                        item.schedule != this.nuevo.schedule){
