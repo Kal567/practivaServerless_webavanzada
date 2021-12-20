@@ -210,9 +210,9 @@
                         var currentHour = new Date().getHours() + 1;
 
                         //still active
-                        if (currentHour <= dateReserv.getHours() + 1 &&
+                        if (currentHour <= dateReserv.getHours() &&
                             currentYear <= dateReserv.getFullYear() &&
-                            currentMonth <= dateReserv.getMonth() &&
+                            currentMonth <= dateReserv.getMonth() + 1 &&
                             currentDay <= dateReserv.getDay()){
                             this.previous.add(item);
                         }
@@ -240,9 +240,9 @@
                         var currentHour = new Date().getHours() + 1;
 
                         //not active
-                        if (!(currentHour <= dateReserv.getHours() + 1 &&
+                        if (!(currentHour <= dateReserv.getHours() &&
                             currentYear <= dateReserv.getFullYear() &&
-                            currentMonth <= dateReserv.getMonth() &&
+                            currentMonth <= dateReserv.getMonth() + 1 &&
                             currentDay <= dateReserv.getDay())){
                             this.current.add(item);
                         }
@@ -267,19 +267,11 @@
                        item.schedule != this.nuevo.schedule){
                         var time = new Date(this.nuevo.schedule);
                         if (time.getHours() >= 8 && time.getHours() <= 22){
-                            if(!this.editando){
-                                //creando
-                                axios.post(URL_API, this.nuevo).then(response => {
-                                    this.limpiar();
-                                    this.listaEstudiantes();
-                                }).catch(error => console.log(error));
-                            } else{
-                                //editando
-                                axios.put(URL_API, this.nuevo).then(response => {
-                                    this.limpiar();
-                                    this.listaEstudiantes();
-                                }).catch(error => console.log(error));
-                            }
+                            //creando
+                            axios.post(URL_API, this.nuevo).then(response => {
+                                this.limpiar();
+                                this.listaEstudiantes();
+                            }).catch(error => console.log(error));
                         }
                     }
                 })
