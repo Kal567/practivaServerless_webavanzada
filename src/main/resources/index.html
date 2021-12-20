@@ -91,7 +91,7 @@
                     label-for="g3">
                 <b-form-input
                         id = "g3"
-                        v-model="nuevo.nombre"
+                        v-model="nuevo.name"
                         type="text"
                         required
                         placeholder="Name"
@@ -125,7 +125,7 @@
 
                 <div>
                     <p>Seleccione un laboratorio:</p>
-                    <b-form-select v-model="laboratory" :options="options"></b-form-select>
+                    <b-form-select v-model="nuevo.laboratory" :options="options"></b-form-select>
                 </div>
 
             <br>
@@ -163,7 +163,8 @@
                 { value: 'Lab A4', text: 'Lab A4' },
                 { value: 'Lab A5', text: 'Lab A5' },
                 { value: 'Lab A6', text: 'Lab A6' },
-            ]
+            ],
+            titulo:"Serverless"
         },
 
         created: function () {//representa la función de inicialización Vuejs
@@ -252,36 +253,38 @@
             },
 
             nuevoEstudiante: function(){
-                //this.titulo = "New Reservation";
+                this.titulo = "New Reservation";
                 //this.editando = false;
                 this.limpiar();
             },
 
             crearActualizarEstudiante: function(){
-                console.log("datos para almacenar: ", this.nuevo);
-                this.reservations = response.data.data.reservations;
-                this.nuevo.laboratory = response.data.data.options.value;
-                var counter = 0;
-                if (time.getHours() >= 8 && time.getHours() <= 22) {
-                    this.reservations.forEach((item) => {
-                        if (item.laboratory == this.nuevo.laboratory &&
-                            item.schedule == this.nuevo.schedule) {
-                            counter = counter + 1;
+                axios.get(URL_API).then(response => {
+                    console.log("datos para almacenar: ", this.nuevo);
+                    this.reservations = response.data.data.reservations;
+                    this.nuevo.laboratory = response.data.data.options.value;
+                    var counter = 0;
+                    if (time.getHours() >= 8 && time.getHours() <= 22) {
+                        this.reservations.forEach((item) => {
+                            if (item.laboratory == this.nuevo.laboratory &&
+                                item.schedule == this.nuevo.schedule) {
+                                counter = counter + 1;
+                            }
+                        })
+                        if (counter < 7) {
+                            axios.post(URL_API, this.nuevo).then(response => {
+                                this.limpiar();
+                                this.listaEstudiantes();
+                            }).catch(error => console.log(error));
                         }
-                    })
-                    if (counter < 7) {
-                        axios.post(URL_API, this.nuevo).then(response => {
-                            this.limpiar();
-                            this.listaEstudiantes();
-                        }).catch(error => console.log(error));
                     }
-                }
+                }).catch(error => { console.log(error); });
                 this.$bvModal.hide('modal-1');
             },
 
             editarEstudiante: function (reservation) {
                 //console.log("El reservation seleccionado para actualizar: ", reservation);
-                //this.titulo = "Editando Estudiante - "+reservation.matricula;
+                this.titulo = "Editando Estudiante - "+reservation.matricula;
                 this.nuevo = Object.assign({}, reservation); //copiando el objeto, evitando el cambio directo en el form.
                 //this.editando = true;
                 this.$bvModal.show('modal-1');
