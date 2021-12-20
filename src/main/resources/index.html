@@ -166,7 +166,7 @@
                 { value: 'Lab A5', text: 'Lab A5' },
                 { value: 'Lab A6', text: 'Lab A6' },
             ]
-        } ,
+        },
 
         created: function () {//representa la función de inicialización Vuejs
 
@@ -262,20 +262,22 @@
             crearActualizarEstudiante: function(){
                 console.log("datos para almacenar: ", this.nuevo);
                 this.reservations = response.data.data.reservations;
-                this.reservations.forEach((item) => {
-                    if(item.laboratory != this.nuevo.laboratory &&
-                       item.schedule != this.nuevo.schedule){
-                        var time = new Date(this.nuevo.schedule);
-                        if (time.getHours() >= 8 && time.getHours() <= 22){
-                            //creando
-                            axios.post(URL_API, this.nuevo).then(response => {
-                                this.limpiar();
-                                this.listaEstudiantes();
-                            }).catch(error => console.log(error));
+                this.nuevo.laboratory = this.data.data.options.value;
+                var counter = 0;
+                if (time.getHours() >= 8 && time.getHours() <= 22) {
+                    this.reservations.forEach((item) => {
+                        if (item.laboratory == this.nuevo.laboratory &&
+                            item.schedule == this.nuevo.schedule) {
+                            counter = counter + 1;
                         }
+                    })
+                    if (counter < 7) {
+                        axios.post(URL_API, this.nuevo).then(response => {
+                            this.limpiar();
+                            this.listaEstudiantes();
+                        }).catch(error => console.log(error));
                     }
-                })
-
+                }
                 this.$bvModal.hide('modal-1');
             },
 
