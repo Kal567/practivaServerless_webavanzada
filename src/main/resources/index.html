@@ -199,27 +199,20 @@
                     console.log("Objeto: "+JSON.stringify(response));
                     //
                     this.reservations = response.data.data.reservations;
-                    this.previous = null;
-                    this.reservations.forEach((item) => {
-                        var date = item.schedule;
-                        var dateReserv = new Date(date);
-                        var currentDay = new Date().getDay();
-                        var currentMonth = new Date().getMonth();
-                        var currentYear = new Date().getFullYear();
-                        var currentHour = new Date().getHours() + 1;
-
-                        //still active
-                        if (currentHour <= dateReserv.getHours() &&
-                            currentYear <= dateReserv.getFullYear() &&
-                            currentMonth <= dateReserv.getMonth() + 1 &&
-                            currentDay <= dateReserv.getDay()){
-                            this.previous.add(item);
-                        }
-
-                        this.reservations = this.previous;
-                    })
-
                 }).catch(error => { console.log(error); });
+                var current =  JSON.parse('[]');
+                this.reservations.forEach((item) => {
+                    var date = item.schedule;
+                    var dateReserv = new Date(date);
+                    var currentDate = new Date();
+                    console.log(item);
+                    if(currentDate < dateReserv){
+                        current.push(item);
+                    }
+                })
+                axios.get(URL_API, this.reservations).then(response => {
+                    this.reservations = current;
+                }).catch(error => console.log(error));
             },
 
             previousReservations: function(){
@@ -229,27 +222,20 @@
                     console.log("Objeto: "+JSON.stringify(response));
                     //
                     this.reservations = response.data.data.reservations;
-                    this.current = null;
-                    this.reservations.forEach((item) => {
-                        var date = item.schedule;
-                        var dateReserv = new Date(date);
-                        var currentDay = new Date().getDay();
-                        var currentMonth = new Date().getMonth();
-                        var currentYear = new Date().getFullYear();
-                        var currentHour = new Date().getHours() + 1;
-
-                        //not active
-                        if (!(currentHour <= dateReserv.getHours() &&
-                            currentYear <= dateReserv.getFullYear() &&
-                            currentMonth <= dateReserv.getMonth() + 1 &&
-                            currentDay <= dateReserv.getDay())){
-                            this.current.add(item);
-                        }
-
-                        this.reservations = this.current;
-                    })
-
                 }).catch(error => { console.log(error); });
+                var previous =  JSON.parse('[]');
+                this.reservations.forEach((item) => {
+                    var date = item.schedule;
+                    var dateReserv = new Date(date);
+                    var currentDate = new Date();
+                    console.log(item);
+                    if(currentDate > dateReserv){
+                        previous.push(item);
+                    }
+                })
+                axios.get(URL_API, this.reservations).then(response => {
+                    this.reservations = previous;
+                }).catch(error => console.log(error));
             },
 
             nuevoEstudiante: function(){
@@ -259,26 +245,29 @@
             },
 
             crearActualizarEstudiante: function(){
+                console.log("LABORATORIO", this.nuevo.laboratory);
                 axios.get(URL_API).then(response => {
                     console.log("datos para almacenar: ", this.nuevo);
                     this.reservations = response.data.data.reservations;
-                    this.nuevo.laboratory = response.data.data.options.value;
-                    var counter = 0;
-                    if (time.getHours() >= 8 && time.getHours() <= 22) {
-                        this.reservations.forEach((item) => {
-                            if (item.laboratory == this.nuevo.laboratory &&
-                                item.schedule == this.nuevo.schedule) {
-                                counter = counter + 1;
-                            }
-                        })
-                        if (counter < 7) {
-                            axios.post(URL_API, this.nuevo).then(response => {
-                                this.limpiar();
-                                this.listaEstudiantes();
-                            }).catch(error => console.log(error));
-                        }
-                    }
+                    //this.nuevo.laboratory = response.data.data.options.value;
                 }).catch(error => { console.log(error); });
+                var counter = 0;
+                var dateReserv = new Date(this.nuevo.schedule.toString());
+                console.log("FECHA RESERV", dateReserv.getHours());
+                if (dateReserv.getHours() >= 8 && dateReserv.getHours() <= 22) {
+                    this.reservations.forEach((item) => {
+                        if (item.laboratory == this.nuevo.laboratory &&
+                            item.schedule == this.nuevo.schedule) {
+                            counter = counter + 1;
+                        }
+                    })
+                    if (counter < 7) {
+                        axios.post(URL_API, this.nuevo).then(response => {
+                            this.limpiar();
+                            this.listaEstudiantes();
+                        }).catch(error => console.log(error));
+                    }
+                }
                 this.$bvModal.hide('modal-1');
             },
 
