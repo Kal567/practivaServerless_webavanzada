@@ -98,20 +98,18 @@
                 ></b-form-input>
             </b-form-group>
 
-            <!-- Carrera            -->
             <b-form-group
                     label="Email:"
                     label-for="g3">
                 <b-form-input
                         id = "g3"
-                        v-model="nuevo.carrera"
+                        v-model="nuevo.email"
                         type="text"
                         required
                         placeholder="Email"
                 ></b-form-input>
             </b-form-group>
 
-            <!-- Carrera            -->
             <b-form-group
                     label="Schedule:"
                     label-for="g3">
@@ -254,15 +252,15 @@
             },
 
             nuevoEstudiante: function(){
-                this.titulo = "New Reservation";
-                this.editando = false;
+                //this.titulo = "New Reservation";
+                //this.editando = false;
                 this.limpiar();
             },
 
             crearActualizarEstudiante: function(){
                 console.log("datos para almacenar: ", this.nuevo);
                 this.reservations = response.data.data.reservations;
-                this.nuevo.laboratory = this.data.data.options.value;
+                this.nuevo.laboratory = response.data.data.options.value;
                 var counter = 0;
                 if (time.getHours() >= 8 && time.getHours() <= 22) {
                     this.reservations.forEach((item) => {
@@ -282,10 +280,10 @@
             },
 
             editarEstudiante: function (reservation) {
-                console.log("El reservation seleccionado para actualizar: ", reservation);
-                this.titulo = "Editando Estudiante - "+reservation.matricula;
+                //console.log("El reservation seleccionado para actualizar: ", reservation);
+                //this.titulo = "Editando Estudiante - "+reservation.matricula;
                 this.nuevo = Object.assign({}, reservation); //copiando el objeto, evitando el cambio directo en el form.
-                this.editando = true;
+                //this.editando = true;
                 this.$bvModal.show('modal-1');
             },
 
